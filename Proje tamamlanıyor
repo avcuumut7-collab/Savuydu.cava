@@ -1,0 +1,48 @@
+/* * PROJECT: UAB (Universal Aerospace Bridge) 
+ * MODULE: Integrated_Satellite_Protocol
+ */
+
+variables
+{
+  // --- Sistem Değişkenleri ---
+  int g_UyduModu = 0;       // 0: Standby, 1: Active, 2: Error
+  float g_BataryaSeviyesi = 100.0;
+  msTimer t_VeriDongusu;    // Veri gönderim zamanlayıcısı
+  
+  // --- Protokol Mesaj Yapısı (Örnek) ---
+  message Uydu_Status msg_Status;
+  message Uydu_Telemetri msg_Tele;
+}
+
+on start
+{
+  write("--- UAB SISTEMI BASLATILDI ---");
+  g_UyduModu = 1;
+  setTimer(t_VeriDongusu, 1000); // Her 1 saniyede bir çalış
+}
+
+on timer t_VeriDongusu
+{
+  // Batarya simülasyonu ve Telemetri Protokolü
+  if(g_BataryaSeviyesi > 0) {
+    g_BataryaSeviyesi -= 0.5;
+    
+    // Mesajı doldur ve gönder
+    msg_Tele.Battery = g_BataryaSeviyesi;
+    msg_Tele.Mode = g_UyduModu;
+    output(msg_Tele);
+    
+    setTimer(t_VeriDongusu, 1000); // Döngüyü yenile
+  } else {
+    g_UyduModu = 2; // Hata modu: Batarya bitti
+    write("UYARI: UAB Batarya Kritik!");
+  }
+}
+
+on message * {
+  // Gelen tüm mesajları dinleme ve yanıtlama protokolü
+  if(this.id == 0x100) { // Örnek komut ID'si
+    write("UAB: Komut alindi, sistem kontrol ediliyor...");
+  }
+}
+ 

@@ -1,0 +1,24 @@
+// UAB Projesi - Saf Uydu Modülü
+// Dosya: saf_uydu.can
+
+variables
+{
+  // Uydu durum değişkenleri
+  int uydu_aktif = 0;
+  float yorunge_hizi = 0.0;
+  char uydu_adi[20] = "Saf Uydu";
+}
+
+on start
+{
+  write("UAB Sistemi Başlatıldı: %s yörüngeye hazır.", uydu_adi);
+  uydu_aktif = 1;
+  yorunge_hizi = 7.8; // km/s (Örnek değer)
+}
+
+on message Uydu_Veri_Paketi // Eğer tanımlı bir mesajın varsa
+{
+  this.Hiz = yorunge_hizi;
+  output(this);
+}
+
